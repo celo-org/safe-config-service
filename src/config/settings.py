@@ -13,6 +13,10 @@ import os
 from distutils.util import strtobool
 from pathlib import Path
 
+import django_stubs_ext
+
+django_stubs_ext.monkeypatch()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,7 +49,6 @@ INSTALLED_APPS = [
     "about.apps.AboutAppConfig",
     "chains.apps.AppsConfig",
     "safe_apps.apps.AppsConfig",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -53,6 +56,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "drf_yasg",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_static",
 ]
 
 MIDDLEWARE = [
@@ -63,9 +69,18 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+DJANGO_OTP_ADMIN = strtobool(os.getenv("DJANGO_OTP_ADMIN", "true"))
+if DJANGO_OTP_ADMIN:
+    # Use OTP admin
+    INSTALLED_APPS.append("config.admin.OTPAdminConfig")
+else:
+    # Use Default admin
+    INSTALLED_APPS.append("django.contrib.admin")
 
 CACHES = {
     "default": {
@@ -109,6 +124,7 @@ LOGGING = {
 }
 
 ROOT_URLCONF = "config.urls"
+FORCE_SCRIPT_NAME = os.getenv("FORCE_SCRIPT_NAME", default=None)
 
 TEMPLATES = [
     {
@@ -169,15 +185,12 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = "/static/"
-
+STATIC_URL = "static/"
 STATIC_ROOT = "staticfiles"
 
 # Default primary key field type
@@ -214,3 +227,12 @@ AWS_QUERYSTRING_AUTH = False
 DEFAULT_FILE_STORAGE = os.getenv(
     "DEFAULT_FILE_STORAGE", "storages.backends.s3boto3.S3Boto3Storage"
 )
+
+# SECURITY
+# https://docs.djangoproject.com/en/4.0/ref/settings/#csrf-trusted-origins
+allowed_csrf_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+if allowed_csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [
+        allowed_csrf_origins.strip()
+        for allowed_csrf_origins in allowed_csrf_origins.split(",")
+    ]

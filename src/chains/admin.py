@@ -1,10 +1,29 @@
 from django.contrib import admin
+from django.db.models import Model
 
-from .models import Chain, GasPrice
+from .models import Chain, Feature, GasPrice, Wallet
+
+
+class GasPriceInline(admin.TabularInline[Model]):
+    model = GasPrice
+    extra = 0
+    verbose_name_plural = "Gas prices set for this chain"
+
+
+class FeatureInline(admin.TabularInline[Model]):
+    model = Feature.chains.through
+    extra = 0
+    verbose_name_plural = "Features enabled for this chain"
+
+
+class WalletInline(admin.TabularInline[Model]):
+    model = Wallet.chains.through
+    extra = 0
+    verbose_name_plural = "Wallets enabled for this chain"
 
 
 @admin.register(Chain)
-class ChainAdmin(admin.ModelAdmin):
+class ChainAdmin(admin.ModelAdmin[Chain]):
     list_display = (
         "id",
         "name",
@@ -17,10 +36,11 @@ class ChainAdmin(admin.ModelAdmin):
         "relevance",
         "name",
     )
+    inlines = [FeatureInline, GasPriceInline, WalletInline]
 
 
 @admin.register(GasPrice)
-class GasPrice(admin.ModelAdmin):
+class GasPriceAdmin(admin.ModelAdmin[GasPrice]):
     list_display = (
         "chain_id",
         "oracle_uri",
@@ -29,3 +49,13 @@ class GasPrice(admin.ModelAdmin):
     )
     search_fields = ("chain_id", "oracle_uri")
     ordering = ("rank",)
+
+
+@admin.register(Wallet)
+class WalletAdmin(admin.ModelAdmin[Wallet]):
+    list_display = ("key",)
+
+
+@admin.register(Feature)
+class FeatureAdmin(admin.ModelAdmin[Feature]):
+    list_display = ("key",)

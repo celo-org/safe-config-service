@@ -7,6 +7,7 @@ name: "CI"
 #  - docker-publish-release – is only triggered on release events
 on:
   push:
+  pull_request:
   release:
     types: [ released ]
 
@@ -16,11 +17,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.10'
       - run: python -m pip install flake8
       - name: flake8
         uses: liskin/gh-problem-matcher-wrap@v1
@@ -32,11 +33,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.10'
       - run: python -m pip install isort
       - name: isort
         uses: liskin/gh-problem-matcher-wrap@v1
@@ -48,11 +49,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.10'
       - run: python -m pip install black
       - name: black
         run: black --check src/
@@ -62,7 +63,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres
+        image: postgres:13-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -82,8 +83,8 @@ jobs:
       AWS_STORAGE_BUCKET_NAME: 'example-aws-storage-bucket-name'
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2.3.4
-      - uses: actions/cache@v2.1.6
+        uses: actions/checkout@v2.4.0
+      - uses: actions/cache@v2.1.7
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
@@ -92,10 +93,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           pip install -r requirements-dev.txt
+      - name: Run mypy
+        run: mypy --strict src/chains src/safe_apps
       - name: Check pending migrations
         run: python src/manage.py makemigrations --check --dry-run
       - name: Run migrations
@@ -103,7 +106,7 @@ jobs:
       - name: Django System Check
         run: python src/manage.py check
       - name: Run tests with coverage
-        run: coverage run --source=src/ -m pytest src
+        run: coverage run -m pytest src
       - name: Upload coverage
         continue-on-error: true
         env:
@@ -118,18 +121,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v2.4.0
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1.6.0
       - name: Cache Docker layers
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
       - name: Login to DockerHub
-        uses: docker/login-action@v1.10.0
+        uses: docker/login-action@v1.12.0
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
@@ -143,12 +146,10 @@ jobs:
         run: echo "DOCKER_TAG=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
       - name: Build and push
         id: docker_build
-        uses: docker/build-push-action@v2.7.0
+        uses: docker/build-push-action@v2.9.0
         with:
           context: .
           push: true
-          # Target production image from multi-stage build (check Dockerfile)
-          target: production
           tags: gnosispm/safe-config-service:${{ env.DOCKER_TAG }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
