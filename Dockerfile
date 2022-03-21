@@ -1,4 +1,4 @@
-FROM python:3.9-slim as production
+FROM python:3.10.3-slim as production
 
 # python
 ENV PYTHONUNBUFFERED=1
