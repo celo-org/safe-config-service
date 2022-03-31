@@ -1,6 +1,6 @@
 # Safe Config Service Helm chart
 
-Helm chart for safe-config-service, deployed to GCP [Artifact Repository](https://console.cloud.google.com/artifacts/docker/clabs-gnosis-safe/us-central1/charts?project=clabs-gnosis-safe&supportedpurview=project) as OCI Helm chart `safe-config-service`.
+Helm chart for safe-config-service, deployed to GCP [Artifact Repository](https://console.cloud.google.com/artifacts/docker/clabs-gnosis-safe/us-central1/charts?project=clabs-gnosis-safe&supportedpurview=project) as OCI Helm chart `safe-config-service-chart`.
 
 ## Artifact Repository CI
 
