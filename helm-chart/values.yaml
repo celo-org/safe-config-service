@@ -75,9 +75,9 @@ affinity: {}
 
 global:
   postgresql:
-    # -- Postgresql depencency chart database for storing data
+    # -- Postgresql dependency chart database for storing data
     postgresqlDatabase: ""
-    # -- Postgresql depencency chart password
+    # -- Postgresql dependency chart password
     postgresqlPassword: ""
 
 safeConfigService:
