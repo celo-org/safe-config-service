@@ -12,19 +12,23 @@ The chart is deployed to Artifact Repository through Cloud Build (using [../clou
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 10.10.3 |
+| https://charts.bitnami.com/bitnami | postgresql | 11.9.11 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | Kubernetes pod affinity |
+| env.csrfTrustedOrigins | string | `"http://*,https://*"` | CSRF Trusted Origin |
+| env.debug | string | `"false"` | Debug log level |
+| env.gUnicornWebReload | string | `"false"` | gUnicorn web reload |
+| env.rootLogLevel | string | `"INFO"` | Root Log Level |
+| env.secretKey | string | `""` | Secret key for safe-config-service |
 | fullnameOverride | string | `""` | Chart full name override |
-| global.postgresql.postgresqlDatabase | string | `""` | Postgresql dependency chart database for storing data |
-| global.postgresql.postgresqlPassword | string | `""` | Postgresql dependency chart password |
+| global.postgresql.auth.postgresPassword | string | `""` | Postgresql dependency chart password |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pullpolicy |
 | image.repository | string | `"us-central1-docker.pkg.dev/clabs-gnosis-safe/charts/safe-config-service"` | Image repository |
-| image.tag | string | `"7563d11ebf253aa251177eb010e14f23e03ac73e"` | Image tag |
+| image.tag | string | `"celo-safe"` | Image tag |
 | imagePullSecrets | list | `[]` | Image pull secrets |
 | ingress.annotations | object | `{}` | Custom Ingress annotations |
 | ingress.className | string | `"nginx"` | Ingress class name |
@@ -36,10 +40,10 @@ The chart is deployed to Artifact Repository through Cloud Build (using [../clou
 | nodeSelector | object | `{}` | Kubernetes node selector |
 | podAnnotations | object | `{}` | Custom pod annotations |
 | podSecurityContext | object | `{}` | Custom pod security context |
+| postgresql.image.tag | string | `"13.8.0"` | Postgresql dependency image version |
 | readinessProbe | object | `{"timeoutSeconds":30}` | Readiness probe configuration |
 | replicaCount | int | `1` | Number of deployment replicas |
 | resources | object | `{}` | Container resources |
-| safeConfigService.secretKey | string | `""` | Secret key for safe-config-service |
 | securityContext | object | `{}` | Custom container security context |
 | service.port | int | `80` | Kubernetes Service Type |
 | service.type | string | `"ClusterIP"` | Kubernetes Service Type |

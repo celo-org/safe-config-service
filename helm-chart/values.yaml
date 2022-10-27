@@ -114,15 +114,20 @@ tolerations: []
 affinity: {}
 
 env:
+  # -- Debug log level
   debug: "false"
+  # -- Root Log Level
   rootLogLevel: "INFO"
+  # -- gUnicorn web reload
   gUnicornWebReload: "false"
+  # -- CSRF Trusted Origin
   csrfTrustedOrigins: "http://*,https://*"
   # -- Secret key for safe-config-service
   secretKey: ""
 
 postgresql:
   image:
+    # -- Postgresql dependency image version
     tag: "13.8.0"
 
 global:
